@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 import yaml
 import matplotlib
-matplotlib.use("Qt5Agg")
+matplotlib.use("WebAgg")
 
 PLOTLINE = True  # True
 
@@ -83,7 +83,7 @@ class Animation:
             self.patches.append(Rectangle(
                 (d["goal"][0] - math.sqrt(cw/2*cw/2+lb*lb) * math.sin(math.atan2(lb, cw/2)+d["goal"][2]),
                  d["goal"][1] - math.sqrt(cw/2*cw/2+lb*lb) * math.cos(math.atan2(lb, cw/2)+d["goal"][2])),
-                lb+lf, cw, -d["goal"][2] / math.pi * 180,
+                lb+lf, cw, angle=-d["goal"][2] / math.pi * 180,
                 facecolor='none', edgecolor=cmap(i+1),  alpha=0.7, lw=1, linestyle=":"))
             self.list_xdata[i].append(d["start"][0])
             self.list_ydata[i].append(d["start"][1])
@@ -94,7 +94,7 @@ class Animation:
         for d, i in zip(map["agents"], range(0, len(map["agents"]))):
             name = d["name"]
             self.agents[name] = Rectangle(
-                (d["start"][0], d["start"][1]), 1, 2, 0.0, edgecolor='black', alpha=0.7)
+                (d["start"][0], d["start"][1]), 1, 2, angle=0.0, edgecolor='black', alpha=0.7)
             self.agents[name].original_face_color = cmap(i+1)
             self.patches.append(self.agents[name])
             self.T = max(self.T, schedule["schedule"][name][-1]["t"])
@@ -238,5 +238,5 @@ if __name__ == "__main__":
         matplotlib.use("Agg")
         animation.save(args.video, args.speed)
     else:
-        matplotlib.use("Qt5Agg")
+        # matplotlib.use("Qt5Agg")
         animation.show()
