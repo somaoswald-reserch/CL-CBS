@@ -47,6 +47,9 @@ class Animation:
         self.list_ydata = [[] for _ in range(0, len(map["agents"]))]
         self.agents = dict()
         self.agent_names = dict()
+        # 追加①歩行者表示
+        self.pedestrians = dict()
+        # 追加①
         # create boundary patch
         xmin = -1
         ymin = -1
@@ -103,6 +106,20 @@ class Animation:
             self.agent_names[name].set_horizontalalignment('center')
             self.agent_names[name].set_verticalalignment('center')
             self.artists.append(self.agent_names[name])
+
+        # 追加箇所②
+        if "pedestrians" in map:
+            for p in map["pedestrians"]:
+                name = p["name"]
+                first = p["trajectory"][0]
+                self.pedestrians[name] = Circle(
+                    (first["x"], first["y"]),
+                    radius=0.5,
+                    facecolor="red",
+                    edgecolor="black"
+                )
+                self.patches.append(self.pedestrians[name])
+        # 追加箇所②
 
         # self.ax.set_axis_off()
         # self.fig.axes[0].set_visible(False)
@@ -168,6 +185,19 @@ class Animation:
                     "agent", ""))].set_data(self.list_xdata[int(agent_name.replace(
                         "agent", ""))], self.list_ydata[int(agent_name.replace(
                             "agent", ""))])
+        
+        # 追加箇所④
+        if "pedestrians" in self.map:
+            for ped in self.map["pedestrians"]:
+                pos = self.getPedestrianState(
+                    i / framesPerMove,
+                    ped["trajectory"]
+                )
+                self.pedestrians[ped["name"]].center = (
+                    pos[0],
+                    pos[1]
+                )
+        # 追加箇所④
 
         # reset all colors
         for _, agent in self.agents.items():
@@ -198,6 +228,35 @@ class Animation:
             return pos
         else:
             return np.array([float(d[-1]["x"]), float(d[-1]["y"]), float(d[-1]["yaw"])])
+
+    # 追加箇所③    
+    def getPedestrianState(self, t, traj):
+        idx = 0
+        while idx < len(traj) and traj[idx]["t"] < t:
+            idx += 1
+        if idx == 0:
+            return np.array([
+                float(traj[0]["x"]),
+                float(traj[0]["y"])
+            ])
+        elif idx < len(traj):
+            last = np.array([
+                float(traj[idx-1]["x"]),
+                float(traj[idx-1]["y"])
+            ])
+            nxt = np.array([
+                float(traj[idx]["x"]),
+                float(traj[idx]["y"])
+            ])
+            dt = traj[idx]["t"] - traj[idx-1]["t"]
+            ratio = (t - traj[idx-1]["t"]) / dt
+            return last + (nxt-last)*ratio
+        else:
+            return np.array([
+                float(traj[-1]["x"]),
+                float(traj[-1]["y"])
+            ])
+    # 追加箇所③
 
 
 if __name__ == "__main__":
