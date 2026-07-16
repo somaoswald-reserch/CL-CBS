@@ -119,6 +119,24 @@ class Animation:
                     edgecolor="black"
                 )
                 self.patches.append(self.pedestrians[name])
+
+        # 画面の右上 (マップの最大寸法付近) にテキストを設置
+        self.time_text = self.ax.text(
+            self.map["map"]["dimensions"][0] - 0.5, 
+            self.map["map"]["dimensions"][1] - 0.5, 
+            't = 0.0', 
+            horizontalalignment='right', 
+            verticalalignment='top', 
+            fontsize=14, 
+            fontweight='bold', 
+            color='black',
+            bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', pad=3),
+            zorder=10
+        )
+        # アニメーションの更新対象リスト (artists) に追加する
+        self.artists.append(self.time_text)
+
+
         # 追加箇所②
 
         # self.ax.set_axis_off()
@@ -198,6 +216,12 @@ class Animation:
                     pos[1]
                 )
         # 追加箇所④
+
+        # ==========================================
+        # 【ここを追加】 現在の時間(t)を計算してテキストを更新
+        # ==========================================
+        current_t = i / framesPerMove
+        self.time_text.set_text(f't = {current_t:.1f}')
 
         # reset all colors
         for _, agent in self.agents.items():
